@@ -21,7 +21,6 @@ def load():
 
 df = load()
 
-#Genel resmi inceleme
 
 def check_df(dataframe, head=5):
     print("##################### Shape #####################")
@@ -40,7 +39,7 @@ def check_df(dataframe, head=5):
 check_df(df)
 
 
-#Numerik ve kategorik değişkenleri yakalama
+#Grabbing numeric and categorical variables
 
 def grab_col_names(dataframe, cat_th=10, car_th=20):
     """
@@ -104,7 +103,7 @@ def grab_col_names(dataframe, cat_th=10, car_th=20):
 
 cat_cols, num_cols, cat_but_car = grab_col_names(df)
 
-#Numerik ve kategorik değişken analizleri
+#Numeric and categorical variable analysis
 
 def cat_summary(dataframe, col_name, plot=False):
     print(pd.DataFrame({col_name: dataframe[col_name].value_counts(),
@@ -135,7 +134,7 @@ for col in num_cols:
     num_summary(df, col, plot=True)
 
 
-#Hedef değişken analizi
+#Target Variable Analysis
 
 def target_summary_with_cat(dataframe, target, categorical_col):
     print(pd.DataFrame({"TARGET_MEAN": dataframe.groupby(categorical_col)[target].mean()}), end="\n\n\n")
@@ -146,7 +145,7 @@ for col in cat_cols:
 
 df.groupby("Outcome").agg({"mean"})
 
-#Aykırı gözlem analizi
+#Outlier Analysis
 
 def outlier_thresholds(dataframe, col_name, q1=0.25, q3=0.75):
     quartile1 = dataframe[col_name].quantile(q1)
@@ -183,7 +182,7 @@ for col_names in df:
     print(col_names ,"\n", grab_outliers(df, col_names))
 
 
-#Çok değişkenli aykırı değer analizi: local outlier factor
+#Local Outlier Factor
 
 clf = LocalOutlierFactor(n_neighbors=20)
 clf.fit_predict(df)
@@ -200,13 +199,12 @@ th = np.sort(df_scores)[10]
 df[df_scores < th]
 df[df_scores < th].shape
 
-#Eksik gözlem analizi
+#Missing Observation Analysis
 
 df.isnull().sum()
 
-#Korelasyon analizi
+#Correlation analysis
 
-# Adım 7: Korelasyon analizi yapınız.
 corr = df[num_cols].corr()
 corr
 
@@ -230,9 +228,10 @@ def high_correlated_cols(dataframe, plot=False, corr_th=0.70):
 high_correlated_cols(df, plot=True)
 
 
-#Görev 2 : Feature Engineering
+# Feature Engineering
 
-#Eksik değerler için işlemler
+#Missing Values
+
 df[df["Insulin"]==0].shape
 df["Insulin"].replace(0,np.NaN,inplace=True)
 df["Insulin"].describe().T
@@ -253,7 +252,7 @@ df["Insulin"].isnull().sum()
 df.loc[(df["Insulin"].isnull()) & (df["Outcome"]==0), "Insulin" ]= df.groupby("Outcome")["Insulin"].mean()[0]
 df.loc[(df["Insulin"].isnull()) & (df["Outcome"]==1), "Insulin" ]= df.groupby("Outcome")["Insulin"].mean()[1]
 
-#Aykırı değerler için işlemler
+#Outliers
 
 for col_names in df:
     print(col_names, check_outlier(df, col_names))
@@ -270,14 +269,14 @@ for col in num_cols:
 
 df[df_scores < th].drop(axis=0, labels=df[df_scores < th].index)
 
-#Yeni değişkenler
+#Features
 
-#age level
+#Age level
 df.loc[(df["Age"]<30) , "New_Age_Cat"]= "young"
 df.loc[(df["Age"]>=30) & (df["Age"]<50), "New_Age_Cat" ]= "mature"
 df.loc[(df["Age"]>= 50), "New_Age_Cat"]= "senior"
 
-#bmi level
+#Bmi level
 
 #Underweight	Below 18.5
 #Healthy weight	18.5–24.9
@@ -289,13 +288,13 @@ df.loc[(df["BMI"]>=18.5) & (df["BMI"]<24.9), "New_BMI_Cat"]="healthy weight"
 df.loc[(df["BMI"]>=24.9) & (df["BMI"]<29.9), "New_BMI_Cat"]="overweight"
 df.loc[(df["BMI"]>=29.9) , "New_BMI_Cat"]="obese"
 
-#glucose level
+#Glucose level
 
 df["New_Glucose_Cat"]=pd.cut(x=df["Glucose"], bins=[0,140,200,300], labels=["normal", "prediabetes","diabetes"])
 
 df.head()
 
-#pregnancies level
+#Pregnancies level
 
 df["Pregnancies"].mean()
 
@@ -311,7 +310,7 @@ df.loc[(df["BloodPressure"]>90), "New_BloodPress_Cat"]="more than ideal"
 
 df.head(20)
 
-#age x bmi
+#Age x Bmi
 df.loc[(df["Age"]<30) & (df["BMI"]<18.5), "New_Age_Bmi_Cat"]= "underweight young"
 df.loc[(df["Age"]>=30) & (df["Age"]<50) & (df["BMI"]<18.5), "New_Age_Bmi_Cat"]= "underweight mature"
 df.loc[(df["Age"]>=50) & (df["BMI"]<18.5), "New_Age_Bmi_Cat"]= "underweight senior"
@@ -326,7 +325,8 @@ df.loc[(df["Age"]>=30) & (df["Age"]<50) & (df["BMI"]>=29.9) , "New_Age_Bmi_Cat"]
 df.loc[(df["Age"]>=50) & (df["BMI"]>=29.9) , "New_Age_Bmi_Cat"]= "obese senior"
 
 
-# insulin level
+# Insulin Level
+
 def set_insulin(dataframe, col_name="Insulin"):
     if 16 <= dataframe[col_name] <= 166:
         return "Normal"
@@ -402,7 +402,7 @@ def grab_col_names(dataframe, cat_th=10, car_th=20):
 
 cat_cols, num_cols, cat_but_car = grab_col_names(df)
 
-#Encoding İşlemleri
+#Encoding 
 
 #Label Encoding
 
@@ -428,7 +428,7 @@ def one_hot_encoder(dataframe, categorical_cols, drop_first=True):
 
 df = one_hot_encoder(df, cat_cols, drop_first=True)
 
-#Standartlaştırma
+#Standardization
 
 #Standard Scaler
 
@@ -450,9 +450,9 @@ from sklearn.ensemble import RandomForestClassifier
 
 rf_model = RandomForestClassifier(random_state=46).fit(X_train, y_train)
 y_pred = rf_model.predict(X_test)
-accuracy_score(y_pred, y_test)
+accuracy_score(y_pred, y_test) #0.8614718614718615
 
-#Önemli değişkenleri tespit etme
+#Important Variables
 
 def plot_importance(model, features, num=len(X), save=False):
     feature_imp = pd.DataFrame({'Value': model.feature_importances_, 'Feature': features.columns})
