@@ -16,7 +16,7 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.set_option('display.width', 500)
 
 def load():
-    data = pd.read_csv(r"C:\Users\hp\PycharmProjects\pythonProject\6. HAFTA\diabetes.csv")
+    data = pd.read_csv(r"C:\Users\hp\PycharmProjects\pythonProject\diabetes.csv")
     return data
 
 df = load()
